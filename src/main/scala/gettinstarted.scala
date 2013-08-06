@@ -1,5 +1,4 @@
 def factorial(n: Int): Int = {
-
   @annotation.tailrec
   def go(n: Int, acc: Int): Int =
     if 
