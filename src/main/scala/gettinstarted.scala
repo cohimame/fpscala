@@ -1,4 +1,5 @@
 def factorial(n: Int): Int = {
+  
   @annotation.tailrec
   def go(n: Int, acc: Int): Int =
     if 
@@ -21,7 +22,6 @@ def curry[A,B,C](f: (A, B) => C): A => (B => C) =
       new Function1[B, C] { 
         def apply(b:B) = f(a,b)
       } 
-
   }
 
 def uncurry[A,B,C](f: A => B => C): (A, B) => C = 
