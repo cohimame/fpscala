@@ -10,17 +10,37 @@ object LList {
     else 
       Cons(as.head, apply(as.tail: _*))
 
+  def tail[A](list: LList[A]):LList[A] = list match {
+    case NNil => sys.error("tail of empty list")
+    case elem :: tail => tail
+  }
 
-	def sum(ints: LList[Int]): Int = ints match {
-  	case NNil => 0
-  	case Cons(x,xs) => x + sum(xs)
-	}
+  def dropWhile[A](list: LList)(f: A => Boolean) = list match {
+    case NNil => NNil
+    case elem :: tail if f(elem) elem :: dropWhile(tail)(f)
+  }
+  
+  def append[A](a1: List[A], a2: List[A]): List[A] = a1 match {
+    case Nil => a2
+    case Cons(h,t) => Cons(h, append(t, a2))
+  }
 
-	def product(ds: LList[Double]): Double = ds match {
-  	case NNil => 1.0
-  	case Cons(0.0, _) => 0.0
-  	case Cons(x,xs) => x * product(xs)
-	}
+  def foldRight[A,B](l: List[A], z: B)(f: (A, B) => B): B = l match {
+      case Nil => z
+      case Cons(x, xs) => f(x, foldRight(xs, z)(f))
+    }
+
+  @annotation.tailrec
+  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = l match {
+    case Nil => z
+    case Cons(h,t) => foldLeft(t, f(z,h))(f)
+  }  
+
+  def fRight[A,B](l: List[A], z: B)(f: (A,B) => B): B =
+    foldLeft(reverse(l), z)((b,a) => f(a,b))
+
+  def map[A,B](l: List[A])(f: A => B): List[B] = foldRight(l,NNil:List[A])( (a,b) => f(a) :: b ) 
+
 
 }
 
