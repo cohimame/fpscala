@@ -11,14 +11,16 @@ trait SStream[+A] {
     case _ => empty  
   }
 
+  def takeWhile(f: A => Boolean): SStream[A] = uncons match {
+    case Some((h,t)) if f(h) => cons(h, t takeWhile f)
+    case _ => empty
+  }
+
   def foldRight[B](z: => B)(f: (A, => B) => B): B =
     uncons match {
       case Some((h, t)) => f(h, t.foldRight(z)(f))
       case None => z
     }
-
-  def exists(p: A => Boolean): Boolean =
-    foldRight(false)((a, b) => p(a) || b)
 
   def map[B](f: A => B): SStream[B] =
     foldRight(empty[B])((h,t) => cons(f(h), t))
@@ -34,7 +36,10 @@ trait SStream[+A] {
       (h,t) =>
               if (f(h)) cons(h, t)
               else t
-    )   
+    ) 
+
+  def exists(p: A => Boolean): Boolean =
+    foldRight(false)((a, b) => p(a) || b)  
   
 }
 
@@ -47,8 +52,6 @@ object SStream {
       lazy val uncons = Some((hd, tl))
     }
 
-  def <::>[A](hd: => A, tl: => SStream[A]) = cons(hd,tl)
-
   def apply[A](as: A*): SStream[A] =
     if (as.isEmpty) empty
     else cons(as.head, apply(as.tail: _*))
@@ -57,7 +60,7 @@ object SStream {
 
 import SStream._
 
-val stream = 
+val stream: SStream[Int] = 
   cons(
     {println("1!");1}
     ,
@@ -67,11 +70,23 @@ val stream =
       cons(
         {println("3!");3}
         ,
-        cons({println("4!");4}
-        ,
-        empty[Int])
+        cons(
+          {println("4!");4}
+          ,
+          cons(
+            {println("5!");5}
+            ,
+            empty[Int]
+          )
         )
       )
+    )
   )
 
-val processedS = stream.map(_ + 10).filter(_ % 2 == 0)
+
+val scalaStream = {println("1!");1} #:: {println("2!");2}
+
+//val processedS = stream.map(_ + 10).filter(_ % 2 == 0)
+
+
+val ones: SStream[Int] = cons(1, ones)
